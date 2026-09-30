@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -6,6 +8,7 @@ from app.agents.devops_agent import devops_agent
 app = FastAPI(
     title="Agentic Infrastructure Operations Platform"
 )
+logger = logging.getLogger(__name__)
 
 
 class UserRequest(BaseModel):
@@ -33,6 +36,7 @@ async def agent_gateway(user_request: UserRequest):
         }
 
     except Exception:
+        logger.exception("Agent request failed")
         raise HTTPException(
             status_code=502,
             detail={

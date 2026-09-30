@@ -1,6 +1,7 @@
 from mcp.server.mcpserver import MCPServer
 
 from app.integrations.jira import create_issue, get_issue
+from app.config import JIRA_BASE_URL
 
 mcp = MCPServer("Jira MCP Server")
 
@@ -29,9 +30,7 @@ def create_jira_issue(
         "project_key": project_key,
         "issue_key": result["key"],
         "issue_id": result["id"],
-        "issue_url": (
-            f"https://skyyvote6.atlassian.net/browse/{result['key']}"
-        ),
+        "issue_url": f"{JIRA_BASE_URL.rstrip('/')}/browse/{result['key']}",
     }
 
 
