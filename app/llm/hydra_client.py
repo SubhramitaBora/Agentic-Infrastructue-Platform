@@ -9,26 +9,37 @@ from app.config import (
 
 
 async def ask_hydra(prompt: str) -> str:
-    """
-    Send a prompt to the Hydra LiteLLM Gateway
-    and return the model's response.
-    """
 
-    url = f"{HYDRA_LITELLM_BASE_URL.rstrip('/')}/chat/completions"
+    if not HYDRA_LITELLM_BASE_URL:
+        raise RuntimeError(
+            "HYDRA_LITELLM_BASE_URL is not configured."
+        )
+
+    if not HYDRA_MODEL:
+        raise RuntimeError(
+            "HYDRA_MODEL is not configured."
+        )
+
+    url = (
+        f"{HYDRA_LITELLM_BASE_URL.rstrip('/')}"
+        "/chat/completions"
+    )
 
     headers = {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
     }
 
     if HYDRA_API_KEY:
-        headers["Authorization"] = f"Bearer {HYDRA_API_KEY}"
+        headers["Authorization"] = (
+            f"Bearer {HYDRA_API_KEY}"
+        )
 
     payload = {
         "model": HYDRA_MODEL,
         "messages": [
             {
                 "role": "user",
-                "content": prompt,
+                "content": prompt
             }
         ],
     }
