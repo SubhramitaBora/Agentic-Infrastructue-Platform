@@ -6,6 +6,7 @@ from app.integrations.github import (
     get_repository,
     get_pull_request,
     update_issue,
+    list_issues,
 )
 
 mcp = MCPServer("GitHub MCP Server")
@@ -63,6 +64,22 @@ def get_github_issue(
         "body": result["body"],
         "state": result["state"],
         "url": result["html_url"],
+    }
+
+
+@mcp.tool()
+def list_github_issues(
+    owner: str,
+    repo: str,
+    state: str = "open",
+    per_page: int = 10,
+) -> dict:
+    """List a small page of issues in a GitHub repository."""
+    return {
+        "status": "success",
+        "operation": "list_github_issues",
+        "repository": f"{owner}/{repo}",
+        "issues": list_issues(owner, repo, state, per_page),
     }
 
 

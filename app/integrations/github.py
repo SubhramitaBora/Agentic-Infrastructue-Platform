@@ -100,6 +100,33 @@ def get_pull_request(
     return response.json()
 
 
+def list_issues(
+    owner: str,
+    repo: str,
+    state: str = "open",
+    per_page: int = 10,
+):
+    if state not in {"open", "closed", "all"}:
+        raise ValueError("GitHub issue state must be open, closed, or all.")
+    response = httpx.get(
+        f"{GITHUB_API_URL}/repos/{owner}/{repo}/issues",
+        params={"state": state, "per_page": min(max(per_page, 1), 20)},
+        headers=github_headers(),
+        timeout=30,
+    )
+    response.raise_for_status()
+    return [
+        {
+            "issue_number": item["number"],
+            "title": item["title"],
+            "state": item["state"],
+            "url": item["html_url"],
+        }
+        for item in response.json()
+        if "pull_request" not in item
+    ]
+
+
 def update_issue(
     owner: str,
     repo: str,

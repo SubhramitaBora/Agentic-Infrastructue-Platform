@@ -1,6 +1,11 @@
 from mcp.server.mcpserver import MCPServer
 
-from app.integrations.jira import create_issue, get_issue, update_issue
+from app.integrations.jira import (
+    create_issue,
+    get_issue,
+    search_issues,
+    update_issue,
+)
 from app.config import JIRA_BASE_URL
 
 mcp = MCPServer("Jira MCP Server")
@@ -68,6 +73,22 @@ def get_jira_issue(
             if fields.get("status")
             else None
         ),
+    }
+
+
+@mcp.tool()
+def search_jira_issues(
+    project_key: str,
+    text: str | None = None,
+    status: str | None = None,
+    max_results: int = 10,
+) -> dict:
+    """Search Jira issues in a project by text and/or workflow status."""
+    return {
+        "status": "success",
+        "operation": "search_jira_issues",
+        "project_key": project_key.upper(),
+        "issues": search_issues(project_key, text, status, max_results),
     }
 
 

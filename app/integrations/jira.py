@@ -1,4 +1,5 @@
 import httpx
+import re
 
 from app.config import (
     JIRA_BASE_URL,
@@ -87,6 +88,47 @@ def get_issue(
     response.raise_for_status()
 
     return response.json()
+
+
+def search_issues(
+    project_key: str,
+    text: str | None = None,
+    status: str | None = None,
+    max_results: int = 10,
+):
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", project_key):
+        raise ValueError("Invalid Jira project key.")
+    clauses = [f'project = "{project_key.upper()}"']
+    if text:
+        escaped_text = text.replace("\\", "\\\\").replace('"', '\\"')
+        clauses.append(f'text ~ "{escaped_text}"')
+    if status:
+        escaped_status = status.replace("\\", "\\\\").replace('"', '\\"')
+        clauses.append(f'status = "{escaped_status}"')
+
+    response = httpx.post(
+        f"{JIRA_BASE_URL}/rest/api/3/search/jql",
+        json={
+            "jql": " AND ".join(clauses),
+            "maxResults": min(max(max_results, 1), 20),
+            "fields": ["summary", "status", "priority", "issuetype"],
+        },
+        headers=jira_headers(),
+        auth=jira_auth(),
+        timeout=30,
+    )
+    response.raise_for_status()
+    data = response.json()
+    return [
+        {
+            "issue_key": issue["key"],
+            "summary": issue.get("fields", {}).get("summary"),
+            "status": (issue.get("fields", {}).get("status") or {}).get("name"),
+            "priority": (issue.get("fields", {}).get("priority") or {}).get("name"),
+            "issue_type": (issue.get("fields", {}).get("issuetype") or {}).get("name"),
+        }
+        for issue in data.get("issues", [])
+    ]
 
 
 def update_issue(
