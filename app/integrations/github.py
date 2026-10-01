@@ -98,3 +98,29 @@ def get_pull_request(
     response.raise_for_status()
 
     return response.json()
+
+
+def update_issue(
+    owner: str,
+    repo: str,
+    issue_number: int,
+    title: str | None = None,
+    body: str | None = None,
+    state: str | None = None,
+):
+    payload = {
+        key: value
+        for key, value in {"title": title, "body": body, "state": state}.items()
+        if value is not None
+    }
+    if not payload:
+        raise ValueError("At least one GitHub issue field must be provided to update.")
+
+    response = httpx.patch(
+        f"{GITHUB_API_URL}/repos/{owner}/{repo}/issues/{issue_number}",
+        json=payload,
+        headers=github_headers(),
+        timeout=30,
+    )
+    response.raise_for_status()
+    return response.json()

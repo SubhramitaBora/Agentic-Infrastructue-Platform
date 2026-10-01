@@ -5,6 +5,7 @@ from app.integrations.github import (
     get_issue,
     get_repository,
     get_pull_request,
+    update_issue,
 )
 
 mcp = MCPServer("GitHub MCP Server")
@@ -56,6 +57,29 @@ def get_github_issue(
     return {
         "status": "success",
         "operation": "get_github_issue",
+        "repository": f"{owner}/{repo}",
+        "issue_number": result["number"],
+        "title": result["title"],
+        "body": result["body"],
+        "state": result["state"],
+        "url": result["html_url"],
+    }
+
+
+@mcp.tool()
+def update_github_issue(
+    owner: str,
+    repo: str,
+    issue_number: int,
+    title: str | None = None,
+    body: str | None = None,
+    state: str | None = None,
+) -> dict:
+    """Update a GitHub issue's title, body, or open/closed state."""
+    result = update_issue(owner, repo, issue_number, title, body, state)
+    return {
+        "status": "success",
+        "operation": "update_github_issue",
         "repository": f"{owner}/{repo}",
         "issue_number": result["number"],
         "title": result["title"],

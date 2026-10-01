@@ -87,3 +87,37 @@ def get_issue(
     response.raise_for_status()
 
     return response.json()
+
+
+def update_issue(
+    issue_key: str,
+    summary: str | None = None,
+    description: str | None = None,
+    priority: str | None = None,
+):
+    fields = {}
+    if summary is not None:
+        fields["summary"] = summary
+    if description is not None:
+        fields["description"] = {
+            "type": "doc",
+            "version": 1,
+            "content": [{
+                "type": "paragraph",
+                "content": [{"type": "text", "text": description}],
+            }],
+        }
+    if priority is not None:
+        fields["priority"] = {"name": priority}
+    if not fields:
+        raise ValueError("At least one Jira field must be provided to update.")
+
+    response = httpx.put(
+        f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}",
+        json={"fields": fields},
+        headers=jira_headers(),
+        auth=jira_auth(),
+        timeout=30,
+    )
+    response.raise_for_status()
+    return {"key": issue_key, "updated_fields": list(fields)}

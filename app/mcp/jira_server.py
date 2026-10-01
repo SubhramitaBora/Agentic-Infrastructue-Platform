@@ -1,6 +1,6 @@
 from mcp.server.mcpserver import MCPServer
 
-from app.integrations.jira import create_issue, get_issue
+from app.integrations.jira import create_issue, get_issue, update_issue
 from app.config import JIRA_BASE_URL
 
 mcp = MCPServer("Jira MCP Server")
@@ -63,6 +63,29 @@ def get_jira_issue(
             if fields.get("issuetype")
             else None
         ),
+        "status": (
+            fields.get("status", {}).get("name")
+            if fields.get("status")
+            else None
+        ),
+    }
+
+
+@mcp.tool()
+def update_jira_issue(
+    issue_key: str,
+    summary: str | None = None,
+    description: str | None = None,
+    priority: str | None = None,
+) -> dict:
+    """Update a Jira issue's summary, description, or priority."""
+    result = update_issue(issue_key, summary, description, priority)
+    return {
+        "status": "success",
+        "operation": "update_jira_issue",
+        "issue_key": result["key"],
+        "updated_fields": result["updated_fields"],
+        "issue_url": f"{JIRA_BASE_URL.rstrip('/')}/browse/{result['key']}",
     }
 
 
