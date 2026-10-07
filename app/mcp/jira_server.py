@@ -16,14 +16,16 @@ def create_jira_issue(
     project_key: str,
     summary: str,
     description: str,
+    issue_type: str = "Task",
     priority: str = "Medium",
 ) -> dict:
     """
-    Create a Jira Task in the specified Jira project.
+    Create a Jira Task or Bug in the specified Jira project.
     """
 
     result = create_issue(
         project_key=project_key,
+        issue_type=issue_type,
         summary=summary,
         description=description,
         priority=priority,

@@ -8,8 +8,13 @@ load_dotenv()
 
 JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
-JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
+ATLASSIAN_API_TOKEN = os.getenv("ATLASSIAN_API_TOKEN")
 JIRA_PROJECT_KEY = os.getenv("JIRA_PROJECT_KEY", "AD")
+
+# Confluence Cloud uses the same Atlassian email/API token pair as Jira, when
+# the account has Confluence product access and page/space permissions.
+CONFLUENCE_BASE_URL = os.getenv("CONFLUENCE_BASE_URL", JIRA_BASE_URL)
+CONFLUENCE_EMAIL = os.getenv("CONFLUENCE_EMAIL", JIRA_EMAIL)
 
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")

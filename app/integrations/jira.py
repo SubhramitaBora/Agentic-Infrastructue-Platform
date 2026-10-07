@@ -4,7 +4,7 @@ import re
 from app.config import (
     JIRA_BASE_URL,
     JIRA_EMAIL,
-    JIRA_API_TOKEN,
+    ATLASSIAN_API_TOKEN,
 )
 
 
@@ -18,7 +18,7 @@ def jira_headers():
 def jira_auth():
     return (
         JIRA_EMAIL,
-        JIRA_API_TOKEN,
+        ATLASSIAN_API_TOKEN,
     )
 
 
@@ -27,6 +27,7 @@ def create_issue(
     summary: str,
     description: str,
     priority: str = "Medium",
+    issue_type: str = "Task",
 ):
     url = f"{JIRA_BASE_URL}/rest/api/3/issue"
 
@@ -52,7 +53,7 @@ def create_issue(
                 ]
             },
             "issuetype": {
-                "name": "Task"
+                "name": issue_type
             },
             "priority": {
                 "name": priority
